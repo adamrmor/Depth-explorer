@@ -29,8 +29,14 @@ const REFERENCES = [
 ];
 
 async function loadData(){
-  const res = await fetch('data/species.json');
-  items = await res.json();
+  try{
+    const res = await fetch('data/species.json');
+    if(!res.ok) throw new Error('Request failed');
+    items = await res.json();
+  }catch(err){
+    console.error('Failed to load species data', err);
+    items = [];
+  }
 }
 
 function clamp(v,min,max){ return Math.min(max, Math.max(min, v)); }
@@ -133,10 +139,15 @@ async function init(){
   // Pointer events unify mouse and touch
   function startPointerDrag(ev){
     ev.preventDefault();
-    handle.setPointerCapture(ev.pointerId);
+    const capturer = ev.target;
+    if(capturer.setPointerCapture){
+      try{ capturer.setPointerCapture(ev.pointerId); }catch{}
+    }
     const move = e => setFromClientY(e.clientY);
     const stop = e => {
-      handle.releasePointerCapture(ev.pointerId);
+      if(capturer.releasePointerCapture){
+        try{ capturer.releasePointerCapture(ev.pointerId); }catch{}
+      }
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', stop);
       window.removeEventListener('pointercancel', stop);
