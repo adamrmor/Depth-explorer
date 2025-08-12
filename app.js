@@ -33,9 +33,10 @@ async function loadData(){
   items = await res.json();
 }
 
+function clamp(v,min,max){ return Math.min(max, Math.max(min, v)); }
 function yToDepth(y, trackEl){
   const rect = trackEl.getBoundingClientRect();
-  const t = Math.min(1, Math.max(0, (y - rect.top) / rect.height));
+  const t = clamp((y - rect.top) / rect.height, 0, 1);
   return Math.round(DEPTH_MIN + t * (DEPTH_MAX - DEPTH_MIN));
 }
 
@@ -80,7 +81,6 @@ function renderCards(depth, q, group){
   });
   for(const i of filtered){
     const li = document.createElement('li');
-    li.className = 'card';
     li.innerHTML = `\
       <a class=\"card\" href=\"./item.html?id=${i.id}\" aria-label=\"Open ${i.common_name}\">\
         <div class=\"image\"><img src=\"${i.image||'assets/placeholder.svg'}\" alt=\"${i.common_name}\"></div>\
@@ -104,8 +104,8 @@ function updateFact(depth){
 async function init(){
   await loadData();
   const handle = document.getElementById('handle');
-  const track = document.getElementById('track');
-  const readout = document.getElementById('depthReadout');
+  const track  = document.getElementById('track');
+  const readout= document.getElementById('depthReadout');
   const q = document.getElementById('q');
   const group = document.getElementById('group');
   const reset = document.getElementById('reset');
@@ -125,31 +125,36 @@ async function init(){
     updateFact(depth);
   }
 
-  function setDepthFromEvent(ev){
-    const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
+  function setFromClientY(clientY){
     depth = yToDepth(clientY, track);
     apply();
   }
 
-  track.addEventListener('mousedown', setDepthFromEvent);
-  track.addEventListener('touchstart', setDepthFromEvent);
-  function startDrag(ev){
+  // Pointer events unify mouse and touch
+  function startPointerDrag(ev){
     ev.preventDefault();
-    const move = e => setDepthFromEvent(e);
-    const stop = () => {
-      window.removeEventListener('mousemove', move);
-      window.removeEventListener('touchmove', move);
-      window.removeEventListener('mouseup', stop);
-      window.removeEventListener('touchend', stop);
+    handle.setPointerCapture(ev.pointerId);
+    const move = e => setFromClientY(e.clientY);
+    const stop = e => {
+      handle.releasePointerCapture(ev.pointerId);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('pointercancel', stop);
     };
-    window.addEventListener('mousemove', move);
-    window.addEventListener('touchmove', move, {passive:false});
-    window.addEventListener('mouseup', stop);
-    window.addEventListener('touchend', stop);
+    window.addEventListener('pointermove', move, {passive:false});
+    window.addEventListener('pointerup', stop);
+    window.addEventListener('pointercancel', stop);
+    setFromClientY(ev.clientY);
   }
-  handle.addEventListener('mousedown', startDrag);
-  handle.addEventListener('touchstart', startDrag, {passive:false});
 
+  // Click or drag anywhere on the track
+  track.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    startPointerDrag(e);
+  });
+  handle.addEventListener('pointerdown', startPointerDrag);
+
+  // Keyboard support
   handle.addEventListener('keydown', e => {
     if(e.key === 'ArrowUp'){ depth = Math.max(DEPTH_MIN, depth-50); apply(); }
     if(e.key === 'ArrowDown'){ depth = Math.min(DEPTH_MAX, depth+50); apply(); }
@@ -157,12 +162,14 @@ async function init(){
     if(e.key === 'End'){ depth = DEPTH_MAX; apply(); }
   });
 
+  // Filters
   q.addEventListener('input', apply);
   group.addEventListener('change', apply);
   reset.addEventListener('click', () => { q.value=''; group.value=''; depth = 0; apply(); });
   bigText.addEventListener('click', () => document.documentElement.classList.toggle('kiosk-large'));
   randomDepth.addEventListener('click', () => { depth = Math.floor(Math.random()*DEPTH_MAX); apply(); });
 
+  // Keep aligned on resize
   window.addEventListener('resize', apply);
   apply();
 }
