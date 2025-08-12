@@ -79,15 +79,18 @@ async function init(){
 
   let depth = 0;
 
-  function apply(){
-    readout.textContent = depth + ' m';
-    const rect = track.getBoundingClientRect();
-    const y = (depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN) * rect.height;
-    handle.style.top = y + 'px';
-    track.setAttribute('aria-valuenow', String(depth));
-    renderCards(depth, q.value, group.value);
-    updateFact(depth);
-  }
+function apply(){
+  readout.textContent = depth + ' m';
+  const rect = track.getBoundingClientRect();
+  const y = (depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN) * rect.height;
+  handle.style.top = y + 'px';                 // y within full-height track
+  track.setAttribute('aria-valuenow', String(depth));
+  renderCards(depth, q.value, group.value);
+  updateFact(depth);
+}
+
+// Re-apply on resize to keep the handle in the right spot
+window.addEventListener('resize', apply);
 
   function setDepthFromEvent(ev){
     const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
