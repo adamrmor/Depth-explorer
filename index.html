@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Explore by Depth</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
+</head>
+<body class="depth">
+<header class="masthead">
+  <h1>Explore by Depth</h1>
+  <nav class="mastnav">
+    <a href="index.html" class="active">Depth</a>
+    <a href="grid.html">All species</a>
+  </nav>
+</header>
+
+<main class="depth-layout" aria-live="polite">
+  <aside class="depth-rail" aria-label="Depth control">
+    <div class="zone zone-sunlight">Sunlight</div>
+    <div class="zone zone-twilight">Twilight</div>
+    <div class="zone zone-midnight">Midnight</div>
+    <div id="track" class="track" role="slider" aria-valuemin="0" aria-valuemax="4000" aria-valuenow="0" aria-label="Depth in metres">
+      <div id="handle" class="handle" tabindex="0">
+        <span id="depthReadout" class="readout">0 m</span>
+      </div>
+    </div>
+    <div class="ticks" aria-hidden="true">
+      <span>0 m</span>
+      <span>200 m</span>
+      <span>1000 m</span>
+      <span>4000 m</span>
+    </div>
+  </aside>
+
+  <section class="results" aria-label="Species at this depth">
+    <header class="filters">
+      <label>Group
+        <select id="group">
+          <option value="">All</option>
+          <option>Fish</option>
+          <option>Coral</option>
+          <option>Crustacean</option>
+          <option>Echinoderm</option>
+        </select>
+      </label>
+      <label>Search
+        <input id="q" type="search" placeholder="Try shark, coral, 800">
+      </label>
+      <button id="randomDepth">Random depth</button>
+      <button id="bigText">Big text</button>
+      <button id="reset">Reset</button>
+    </header>
+
+    <ul id="cards" class="cards"></ul>
+    <div id="fact" class="fact" hidden></div>
+  </section>
+</main>
+
+<footer class="sitefoot">
+  <span>Tap a card to open details</span>
+</footer>
+</body>
+</html>

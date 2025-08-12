@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>All species</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="grid.js"></script>
+</head>
+<body>
+<header class="masthead">
+  <h1>All species</h1>
+  <nav class="mastnav">
+    <a href="index.html">Depth</a>
+    <a href="grid.html" class="active">All species</a>
+  </nav>
+</header>
+
+<main>
+  <header class="filters">
+    <label>Group
+      <select id="group">
+        <option value="">All</option>
+        <option>Fish</option>
+        <option>Coral</option>
+        <option>Crustacean</option>
+        <option>Echinoderm</option>
+      </select>
+    </label>
+    <label>Search
+      <input id="q" type="search" placeholder="Try shark">
+    </label>
+    <button id="bigText">Big text</button>
+    <button id="reset">Reset</button>
+  </header>
+  <ul id="grid" class="grid"></ul>
+</main>
+
+<footer class="sitefoot">
+  <a class="button" href="index.html">Explore by depth</a>
+</footer>
+</body>
+</html>

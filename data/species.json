@@ -1,0 +1,166 @@
+[
+  {
+    "id": "black_shark",
+    "common_name": "Black shark",
+    "also_known_as": "Kitefin shark",
+    "group": "Fish",
+    "depth_min_m": 700,
+    "depth_max_m": 1800,
+    "regions": [
+      "Southern Australia",
+      "New Zealand"
+    ],
+    "summary": "Slow deep-water shark that hunts in small groups.",
+    "body": [
+      "Gives birth to 10 to 16 live young.",
+      "Large oily liver helps it float without swimming.",
+      "Active at night near the seafloor."
+    ],
+    "look_for": [
+      "Dark body",
+      "Large eyes",
+      "Stout shape"
+    ],
+    "display_note": "There is a specimen in the cabinet.",
+    "image": "assets/black_shark.svg"
+  },
+  {
+    "id": "acuminatus_star",
+    "common_name": "Acuminatus starfish",
+    "group": "Echinoderm",
+    "depth_min_m": 400,
+    "depth_max_m": 3900,
+    "regions": [
+      "Southern Australia",
+      "New Zealand",
+      "South Africa"
+    ],
+    "summary": "Deep-water starfish that likely hunts other animals.",
+    "body": [
+      "Close Antarctic relative is an active predator.",
+      "Eats small invertebrates. May sift mud for food."
+    ],
+    "look_for": [
+      "Five narrow arms",
+      "Bright orange colour"
+    ],
+    "image": "assets/acuminatus_star.svg"
+  },
+  {
+    "id": "bubblegum_coral",
+    "common_name": "Bubblegum tree coral",
+    "also_known_as": "Candelabrum coral",
+    "group": "Coral",
+    "depth_min_m": 200,
+    "depth_max_m": 1300,
+    "regions": [
+      "Worldwide"
+    ],
+    "summary": "Slow growing gorgonian coral that forms tall thickets.",
+    "body": [
+      "Needs firm rock rising above soft seafloor.",
+      "Colonies can reach 6 m or more and shelter many species.",
+      "Easily damaged by trawling."
+    ],
+    "look_for": [
+      "Pink branched stems",
+      "Knobbly 'bubblegum' look"
+    ],
+    "display_note": "There is a specimen in the cabinet.",
+    "image": "assets/bubblegum_coral.svg"
+  },
+  {
+    "id": "sea_pen",
+    "common_name": "Sea pen",
+    "group": "Coral",
+    "depth_min_m": 100,
+    "depth_max_m": 2000,
+    "regions": [
+      "Southern Ocean"
+    ],
+    "summary": "Soft coral that anchors in mud and opens to feed on plankton.",
+    "body": [
+      "Sensitive to touch. Can deflate and sink into sediment.",
+      "Important habitat for small animals."
+    ],
+    "look_for": [
+      "Feather or quill shape"
+    ],
+    "image": "assets/sea_pen.svg"
+  },
+  {
+    "id": "stone_crab",
+    "common_name": "Stone crab",
+    "group": "Crustacean",
+    "depth_min_m": 50,
+    "depth_max_m": 800,
+    "regions": [
+      "Southern Australia"
+    ],
+    "summary": "Hard-shelled crab with strong claws.",
+    "body": [
+      "Scavenger and predator.",
+      "Moves across rocky reefs and deep ledges."
+    ],
+    "look_for": [
+      "Thick legs",
+      "Powerful claws"
+    ],
+    "image": "assets/stone_crab.svg"
+  },
+  {
+    "id": "porcupine_crab",
+    "common_name": "Porcupine crab",
+    "group": "Crustacean",
+    "depth_min_m": 200,
+    "depth_max_m": 1400,
+    "regions": [
+      "Southern Australia"
+    ],
+    "summary": "Spiny crab that hides in deep reefs.",
+    "body": [
+      "Covered in long spines that deter predators."
+    ],
+    "look_for": [
+      "Very spiny shell"
+    ],
+    "image": "assets/porcupine_crab.svg"
+  },
+  {
+    "id": "brittle_star",
+    "common_name": "Brittle star",
+    "group": "Echinoderm",
+    "depth_min_m": 50,
+    "depth_max_m": 4000,
+    "regions": [
+      "Worldwide"
+    ],
+    "summary": "Fast moving relative of starfish with thin arms.",
+    "body": [
+      "Arms break off to escape predators and regrow."
+    ],
+    "look_for": [
+      "Central disc with five whiplike arms"
+    ],
+    "image": "assets/brittle_star.svg"
+  },
+  {
+    "id": "australiensis_star",
+    "common_name": "Australiensis starfish",
+    "group": "Echinoderm",
+    "depth_min_m": 50,
+    "depth_max_m": 600,
+    "regions": [
+      "Southern Australia"
+    ],
+    "summary": "Robust orange starfish common on southern reefs.",
+    "body": [
+      "Eats shells and small animals."
+    ],
+    "look_for": [
+      "Thick arms",
+      "Bright orange"
+    ],
+    "image": "assets/australiensis_star.svg"
+  }
+]
