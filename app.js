@@ -12,6 +12,25 @@ const factBands = [
 async function loadData(){
   const res = await fetch('data/species.json');
   items = await res.json();
+
+  // For each species, try to pull a richer specimen image from
+  // iNaturalist.  This lets the main page cards display a photo of
+  // the actual organism rather than the simple vector placeholder.
+  // Failures are ignored so the local SVG falls back gracefully.
+  await Promise.all(items.map(async i => {
+    const inatId = i.inat_id || i.inatId;
+    if(!inatId) return;
+    try{
+      const r = await fetch('https://api.inaturalist.org/v1/taxa/' + encodeURIComponent(inatId));
+      const d = await r.json();
+      const photo = d && d.results && d.results[0] && d.results[0].default_photo;
+      if(photo && photo.medium_url){
+        i.image = photo.medium_url;
+      }
+    }catch{
+      // Network errors fall back to local image
+    }
+  }));
 }
 
 function yToDepth(y, trackEl){
