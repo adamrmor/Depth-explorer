@@ -20,7 +20,7 @@ async function load(){
     for(const i of filtered){
       const li = document.createElement('li');
       li.className = 'card';
-      li.innerHTML = `<a class="stretch" href="item.html?id=${i.id}" aria-label="Open ${i.common_name}"></a>
+      li.innerHTML = `<a class="stretch" href="./item.html?id=${i.id}" aria-label="Open ${i.common_name}"></a>
       <div class="image"><img src="${i.image||'assets/placeholder.svg'}" alt="${i.common_name}"></div>
       <div class="body">
         <h2>${i.common_name}</h2>
