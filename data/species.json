@@ -22,7 +22,10 @@
       "Stout shape"
     ],
     "display_note": "There is a specimen in the cabinet.",
-    "image": "assets/black_shark.svg"
+    "image": "assets/black_shark.svg",
+    "wikipedia": "Kitefin_shark",
+    "wikidata": "Q1321783",
+    "inat_id": 51322
   },
   {
     "id": "acuminatus_star",
@@ -44,7 +47,10 @@
       "Five narrow arms",
       "Bright orange colour"
     ],
-    "image": "assets/acuminatus_star.svg"
+    "image": "assets/acuminatus_star.svg",
+    "wikipedia": "",
+    "wikidata": "",
+    "inat_id": ""
   },
   {
     "id": "bubblegum_coral",
@@ -67,7 +73,10 @@
       "Knobbly 'bubblegum' look"
     ],
     "display_note": "There is a specimen in the cabinet.",
-    "image": "assets/bubblegum_coral.svg"
+    "image": "assets/bubblegum_coral.svg",
+    "wikipedia": "Paragorgia_arborea",
+    "wikidata": "Q2672614",
+    "inat_id": 460092
   },
   {
     "id": "sea_pen",
@@ -86,7 +95,10 @@
     "look_for": [
       "Feather or quill shape"
     ],
-    "image": "assets/sea_pen.svg"
+    "image": "assets/sea_pen.svg",
+    "wikipedia": "Sea_pen",
+    "wikidata": "",
+    "inat_id": 52536
   },
   {
     "id": "stone_crab",
@@ -106,7 +118,10 @@
       "Thick legs",
       "Powerful claws"
     ],
-    "image": "assets/stone_crab.svg"
+    "image": "assets/stone_crab.svg",
+    "wikipedia": "",
+    "wikidata": "",
+    "inat_id": ""
   },
   {
     "id": "porcupine_crab",
@@ -124,7 +139,10 @@
     "look_for": [
       "Very spiny shell"
     ],
-    "image": "assets/porcupine_crab.svg"
+    "image": "assets/porcupine_crab.svg",
+    "wikipedia": "Paralomis_histrix",
+    "wikidata": "Q1068894",
+    "inat_id": 1143998
   },
   {
     "id": "brittle_star",
@@ -142,7 +160,10 @@
     "look_for": [
       "Central disc with five whiplike arms"
     ],
-    "image": "assets/brittle_star.svg"
+    "image": "assets/brittle_star.svg",
+    "wikipedia": "Brittle_star",
+    "wikidata": "Q59256",
+    "inat_id": 48836
   },
   {
     "id": "australiensis_star",
@@ -161,6 +182,9 @@
       "Thick arms",
       "Bright orange"
     ],
-    "image": "assets/australiensis_star.svg"
+    "image": "assets/australiensis_star.svg",
+    "wikipedia": "",
+    "wikidata": "",
+    "inat_id": ""
   }
 ]

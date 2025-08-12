@@ -1,4 +1,4 @@
-// Depth Explore logic
+// Depth Explore logic with full-height track and clickable cards (no 'Open' button)
 let items = [];
 const DEPTH_MIN = 0;
 const DEPTH_MAX = 4000;
@@ -14,13 +14,6 @@ async function loadData(){
   items = await res.json();
 }
 
-function depthToY(depth, trackEl){
-  const rect = trackEl.getBoundingClientRect();
-  // usable height
-  const h = rect.height;
-  const t = (depth - DEPTH_MIN) / (DEPTH_MAX - DEPTH_MIN);
-  return rect.top + t * h;
-}
 function yToDepth(y, trackEl){
   const rect = trackEl.getBoundingClientRect();
   const t = Math.min(1, Math.max(0, (y - rect.top) / rect.height));
@@ -42,6 +35,7 @@ function renderCards(depth, q, group){
     const li = document.createElement('li');
     li.className = 'card';
     li.innerHTML = `
+      <a class="stretch" href="item.html?id=${i.id}" aria-label="Open ${i.common_name}"></a>
       <div class="image">
         <img src="${i.image||'assets/placeholder.svg'}" alt="${i.common_name}">
       </div>
@@ -49,7 +43,6 @@ function renderCards(depth, q, group){
         <h2>${i.common_name}</h2>
         <div class="meta"><span class="badge">${i.group}</span><span class="badge">${i.depth_min_m} to ${i.depth_max_m} m</span></div>
         <p>${i.summary||''}</p>
-        <a class="button" href="item.html?id=${i.id}">Open</a>
       </div>`;
     list.appendChild(li);
   }
@@ -79,18 +72,15 @@ async function init(){
 
   let depth = 0;
 
-function apply(){
-  readout.textContent = depth + ' m';
-  const rect = track.getBoundingClientRect();
-  const y = (depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN) * rect.height;
-  handle.style.top = y + 'px';                 // y within full-height track
-  track.setAttribute('aria-valuenow', String(depth));
-  renderCards(depth, q.value, group.value);
-  updateFact(depth);
-}
-
-// Re-apply on resize to keep the handle in the right spot
-window.addEventListener('resize', apply);
+  function apply(){
+    readout.textContent = depth + ' m';
+    const rect = track.getBoundingClientRect();
+    const y = (depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN) * rect.height;
+    handle.style.top = y + 'px';
+    track.setAttribute('aria-valuenow', String(depth));
+    renderCards(depth, q.value, group.value);
+    updateFact(depth);
+  }
 
   function setDepthFromEvent(ev){
     const clientY = ev.touches ? ev.touches[0].clientY : ev.clientY;
@@ -98,11 +88,9 @@ window.addEventListener('resize', apply);
     apply();
   }
 
-  // click on track
+  // click/drag on track
   track.addEventListener('mousedown', setDepthFromEvent);
   track.addEventListener('touchstart', setDepthFromEvent);
-
-  // drag handle
   function startDrag(ev){
     ev.preventDefault();
     const move = e => setDepthFromEvent(e);
@@ -135,6 +123,7 @@ window.addEventListener('resize', apply);
   bigText.addEventListener('click', () => document.documentElement.classList.toggle('kiosk-large'));
   randomDepth.addEventListener('click', () => { depth = Math.floor(Math.random()*DEPTH_MAX); apply(); });
 
+  window.addEventListener('resize', apply);
   apply();
 }
 document.addEventListener('DOMContentLoaded', init);
