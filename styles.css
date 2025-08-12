@@ -89,3 +89,10 @@ a.card .image{ height:140px; background:#0b1c2a; display:flex; align-items:cente
 a.card img{ max-width:100%; max-height:100% }
 a.card .body{ padding:12px }
 a.card h2{ margin:0 0 8px 0; font-size:18px; color:#eaf6ff }
+
+/* v4.1.1 slider interaction fix */
+.depth-rail{ z-index:5; }         /* rail above results */
+.results{ z-index:1; }            /* results below rail */
+#track{ position:absolute; z-index:6; pointer-events:auto; } /* clickable */
+#handle{ z-index:7; }             /* handle above everything */
+.ticks, .lift-rail, .ref-rail{ pointer-events:none; } /* never capture clicks */
