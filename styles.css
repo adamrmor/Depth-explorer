@@ -8,7 +8,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe U
 .mastnav a.active{background:var(--glass);backdrop-filter:blur(6px)}
 .sitefoot{padding:12px 24px;border-top:1px solid var(--line);color:#c9d6e2;background:#0a1b29}
 
-.depth-layout{display:grid;grid-template-columns:320px 1fr;gap:24px;padding:20px;min-height:calc(100vh - 140px)}
+.depth-layout{display:grid;grid-template-columns:360px 1fr;gap:24px;padding:20px;min-height:calc(100vh - 140px)}
 .depth-rail{position:relative;padding:0 12px;display:flex;align-items:stretch}
 .zone{position:absolute;left:24px;color:#9fc2de;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
 .zone-sunlight{top:0}.zone-twilight{top:35%}.zone-midnight{bottom:0}
@@ -16,6 +16,18 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe U
 .handle{position:absolute;left:50%;transform:translate(-50%,-50%);width:40px;height:24px;border-radius:999px;background:var(--accent);box-shadow:0 0 16px rgba(0,229,255,.85),0 0 2px #fff inset;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .readout{position:absolute;left:52px;top:-2px;color:#cfe7ff;font-weight:700;text-shadow:0 1px 0 #001}
 .ticks{position:absolute;left:210px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;color:#a7c1d9;font-size:14px}
+
+/* Reference rails */
+.lift-rail, .ref-rail{ position:absolute; top:0; bottom:0; pointer-events:none; }
+.lift-rail{ left:240px; width:40px; }
+.ref-rail{ left:300px; right:0; }
+.lift-rail::before{ content:''; position:absolute; left:18px; top:0; bottom:0; width:4px; background:#23425f; border-radius:2px; }
+.lift-marker{ position:absolute; left:0; transform:translateY(-50%); width:40px; color:#cfe7ff; font-size:12px; text-align:center; }
+.lift-marker .tick{ position:absolute; left:12px; top:50%; width:16px; height:2px; background:#79d2ff; transform:translateY(-50%); }
+.lift-marker .label{ display:block; margin-top:-10px; font-weight:700 }
+.ref-marker{ position:absolute; left:0; right:16px; transform:translateY(-50%); display:flex; align-items:center; gap:8px; color:#d9e8f6; font-size:12px; }
+.ref-marker .rule{ height:1px; background:#3a6185; flex:1 }
+.ref-marker .tag{ background:#0e2539; border:1px solid #1e4464; border-radius:999px; padding:4px 8px; white-space:nowrap; }
 
 .results{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:16px;backdrop-filter:blur(4px)}
 .filters{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:12px}

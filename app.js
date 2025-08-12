@@ -1,4 +1,3 @@
-// Depth Explore logic with full-height track and clickable cards (no 'Open' button)
 let items = [];
 const DEPTH_MIN = 0;
 const DEPTH_MAX = 4000;
@@ -7,6 +6,26 @@ const factBands = [
   {min:200, max:400, text:"Around 200 m, daylight fades. This is the start of the twilight zone."},
   {min:800, max:1200, text:"At 800 to 1200 m, it is near freezing with very little light."},
   {min:2000, max:4000, text:"The abyss. High pressure. Few species have adapted to survive here."}
+];
+
+// Museum lift and reference markers
+const LIFT = {
+  height_m: 12,
+  floors: [
+    { label: 'G', depth: 0 },
+    { label: '1', depth: 4 },
+    { label: '2', depth: 8 },
+    { label: '3', depth: 12 }
+  ]
+};
+
+const REFERENCES = [
+  { label: 'Blue whale ~30 m', depth: 30, type: 'animal' },
+  { label: 'Scuba limit ~40 m', depth: 40, type: 'human' },
+  { label: 'Eiffel Tower 324 m', depth: 324, type: 'structure' },
+  { label: 'Burj Khalifa 828 m', depth: 828, type: 'structure' },
+  { label: 'Sperm whale dive ~2000 m', depth: 2000, type: 'animal' },
+  { label: 'Titanic wreck ~3800 m', depth: 3800, type: 'ship' }
 ];
 
 async function loadData(){
@@ -18,6 +37,34 @@ function yToDepth(y, trackEl){
   const rect = trackEl.getBoundingClientRect();
   const t = Math.min(1, Math.max(0, (y - rect.top) / rect.height));
   return Math.round(DEPTH_MIN + t * (DEPTH_MAX - DEPTH_MIN));
+}
+
+function renderRefs(){
+  const liftRail = document.getElementById('liftRail');
+  const refRail = document.getElementById('refRail');
+  const track = document.getElementById('track');
+  const rect = track.getBoundingClientRect();
+  const h = rect.height;
+  liftRail.innerHTML = '';
+  refRail.innerHTML = '';
+
+  for(const f of LIFT.floors){
+    const y = (f.depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN) * h;
+    const el = document.createElement('div');
+    el.className = 'lift-marker';
+    el.style.top = y + 'px';
+    el.innerHTML = `<span class="tick"></span><span class="label">${f.label}</span>`;
+    liftRail.appendChild(el);
+  }
+  for(const r of REFERENCES){
+    if(r.depth < DEPTH_MIN || r.depth > DEPTH_MAX) continue;
+    const y = (r.depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN) * h;
+    const el = document.createElement('div');
+    el.className = 'ref-marker';
+    el.style.top = y + 'px';
+    el.innerHTML = `<div class="rule"></div><span class="tag">${r.label}</span>`;
+    refRail.appendChild(el);
+  }
 }
 
 function renderCards(depth, q, group){
@@ -51,12 +98,8 @@ function renderCards(depth, q, group){
 function updateFact(depth){
   const box = document.getElementById('fact');
   const band = factBands.find(b => depth >= b.min && depth <= b.max);
-  if(band){
-    box.textContent = band.text;
-    box.hidden = false;
-  } else {
-    box.hidden = true;
-  }
+  if(band){ box.textContent = band.text; box.hidden = false; }
+  else { box.hidden = true; }
 }
 
 async function init(){
@@ -78,6 +121,7 @@ async function init(){
     const y = (depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN) * rect.height;
     handle.style.top = y + 'px';
     track.setAttribute('aria-valuenow', String(depth));
+    renderRefs();
     renderCards(depth, q.value, group.value);
     updateFact(depth);
   }
@@ -88,7 +132,6 @@ async function init(){
     apply();
   }
 
-  // click/drag on track
   track.addEventListener('mousedown', setDepthFromEvent);
   track.addEventListener('touchstart', setDepthFromEvent);
   function startDrag(ev){
@@ -108,7 +151,6 @@ async function init(){
   handle.addEventListener('mousedown', startDrag);
   handle.addEventListener('touchstart', startDrag, {passive:false});
 
-  // keyboard
   handle.addEventListener('keydown', e => {
     if(e.key === 'ArrowUp'){ depth = Math.max(DEPTH_MIN, depth-50); apply(); }
     if(e.key === 'ArrowDown'){ depth = Math.min(DEPTH_MAX, depth+50); apply(); }
@@ -116,7 +158,6 @@ async function init(){
     if(e.key === 'End'){ depth = DEPTH_MAX; apply(); }
   });
 
-  // filters
   q.addEventListener('input', apply);
   group.addEventListener('change', apply);
   reset.addEventListener('click', () => { q.value=''; group.value=''; depth = 0; apply(); });

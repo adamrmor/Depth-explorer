@@ -1,4 +1,4 @@
-// Detail page: fetch Wikipedia, Wikidata, iNaturalist; cache; fallback to local JSON.
+// Detail page with Wikipedia/Wikidata/iNaturalist fetch + cache
 async function load(){
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
@@ -32,15 +32,9 @@ async function hydrateOnline(item){
   let wikidataId = item.wikidata || null;
   let inatId = item.inat_id || item.inatId || null;
 
-  if(!wikiTitle){
-    wikiTitle = await wikipediaSearch(item.common_name);
-  }
-  if(!wikidataId && wikiTitle){
-    wikidataId = await wikidataFromWikipedia(wikiTitle);
-  }
-  if(!inatId){
-    inatId = await inatSearch(item.common_name);
-  }
+  if(!wikiTitle){ wikiTitle = await wikipediaSearch(item.common_name); }
+  if(!wikidataId && wikiTitle){ wikidataId = await wikidataFromWikipedia(wikiTitle); }
+  if(!inatId){ inatId = await inatSearch(item.common_name); }
 
   const [wikiSummary, wikidataObj, inatObj] = await Promise.all([
     wikiTitle ? wikipediaSummary(wikiTitle) : null,
