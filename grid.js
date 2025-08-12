@@ -1,6 +1,15 @@
 async function load(){
-  const res = await fetch('data/species.json');
-  const items = await res.json();
+  let items = [];
+  try{
+    const res = await fetch('data/species.json');
+    if(res.ok){
+      items = await res.json();
+    }else{
+      throw new Error('Request failed');
+    }
+  }catch(err){
+    console.error('Failed to load species data', err);
+  }
   const grid = document.getElementById('grid');
   const q = document.getElementById('q');
   const group = document.getElementById('group');

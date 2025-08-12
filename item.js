@@ -2,9 +2,22 @@
 async function load(){
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
-  const res = await fetch('data/species.json');
-  const items = await res.json();
+  let items = [];
+  try{
+    const res = await fetch('data/species.json');
+    if(res.ok){
+      items = await res.json();
+    }else{
+      throw new Error('Request failed');
+    }
+  }catch(err){
+    console.error('Failed to load species data', err);
+  }
   const item = items.find(x => x.id === id) || items[0];
+  if(!item){
+    document.getElementById('content').textContent = 'Species data unavailable.';
+    return;
+  }
   document.getElementById('title').textContent = item.common_name;
 
   const cacheKey = 'species_cache:' + id;
