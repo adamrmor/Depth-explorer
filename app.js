@@ -160,10 +160,15 @@ async function init(){
 
   // Click or drag anywhere on the track
   track.addEventListener('pointerdown', e => {
+    if(e.target !== track) return; // ignore handle to keep focus
     e.preventDefault();
     startPointerDrag(e);
   });
-  handle.addEventListener('pointerdown', startPointerDrag);
+  handle.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    handle.focus();
+    startPointerDrag(e);
+  });
 
   // Keyboard support
   handle.addEventListener('keydown', e => {
