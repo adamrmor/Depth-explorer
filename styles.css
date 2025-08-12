@@ -57,3 +57,35 @@ button:hover,.button:hover{filter:brightness(1.05)}
 .source-badges{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .source-badges a{background:#10283f;border:1px solid #1f4161;color:#cfe7ff;text-decoration:none;padding:4px 8px;border-radius:999px;font-size:12px}
 @media (max-width:900px){.detail-layout{grid-template-columns:1fr}}
+
+/* v4.1 layout fixes */
+.depth-rail{
+  position:sticky;
+  top:0;
+  align-self:start;
+  height:calc(100vh - 140px);
+  overflow:hidden;
+  z-index:1;
+}
+.results{
+  position:relative;
+  z-index:2;
+  height:calc(100vh - 180px);
+  overflow-y:auto;
+}
+/* Make <a class="card"> look like previous .card blocks */
+a.card{
+  display:block;
+  text-decoration:none;
+  color:inherit;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  transition:transform .08s ease;
+}
+a.card:active{ transform:scale(.98) }
+a.card .image{ height:140px; background:#0b1c2a; display:flex; align-items:center; justify-content:center }
+a.card img{ max-width:100%; max-height:100% }
+a.card .body{ padding:12px }
+a.card h2{ margin:0 0 8px 0; font-size:18px; color:#eaf6ff }
