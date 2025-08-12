@@ -1,23 +1,10 @@
-// Detail page with Wikipedia/Wikidata/iNaturalist fetch + cache
+// Detail page: fetch Wikipedia, Wikidata, iNaturalist; cache; fallback to local JSON.
 async function load(){
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
-  let items = [];
-  try{
-    const res = await fetch('data/species.json');
-    if(res.ok){
-      items = await res.json();
-    }else{
-      throw new Error('Request failed');
-    }
-  }catch(err){
-    console.error('Failed to load species data', err);
-  }
+  const res = await fetch('data/species.json');
+  const items = await res.json();
   const item = items.find(x => x.id === id) || items[0];
-  if(!item){
-    document.getElementById('content').textContent = 'Species data unavailable.';
-    return;
-  }
   document.getElementById('title').textContent = item.common_name;
 
   const cacheKey = 'species_cache:' + id;
@@ -45,9 +32,15 @@ async function hydrateOnline(item){
   let wikidataId = item.wikidata || null;
   let inatId = item.inat_id || item.inatId || null;
 
-  if(!wikiTitle){ wikiTitle = await wikipediaSearch(item.common_name); }
-  if(!wikidataId && wikiTitle){ wikidataId = await wikidataFromWikipedia(wikiTitle); }
-  if(!inatId){ inatId = await inatSearch(item.common_name); }
+  if(!wikiTitle){
+    wikiTitle = await wikipediaSearch(item.common_name);
+  }
+  if(!wikidataId && wikiTitle){
+    wikidataId = await wikidataFromWikipedia(wikiTitle);
+  }
+  if(!inatId){
+    inatId = await inatSearch(item.common_name);
+  }
 
   const [wikiSummary, wikidataObj, inatObj] = await Promise.all([
     wikiTitle ? wikipediaSummary(wikiTitle) : null,
