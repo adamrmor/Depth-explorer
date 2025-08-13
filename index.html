@@ -1,32 +1,185 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Explore by Depth</title>
-  <link rel="stylesheet" href="styles.css">
-  <script defer src="app.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Explore by Depth — Touch Kiosk</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:#06121c;color:#eef3f7;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+
+  :root{
+    --line:#1a334b;
+    --accent:#00e5ff;
+    --cta:#20b2aa;
+    --panel:#0b1c2a;
+  }
+
+  /* Header with wave */
+  header{
+    position:relative;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#0b1f2f,#081726);
+    overflow:hidden;
+  }
+  header .row{
+    display:flex;justify-content:space-between;align-items:end;
+    padding:14px 20px 12px 20px;
+  }
+  header h1{margin:0;font-size:28px;letter-spacing:.5px}
+  header .nav a{
+    color:#cfe7ff;text-decoration:none;margin-left:12px;padding:6px 10px;border-radius:10px
+  }
+  header .nav a.active{background:rgba(255,255,255,.08);backdrop-filter:blur(6px)}
+  /* Wave banner */
+  .wave{
+    position:absolute;left:0;right:0;bottom:-1px;height:80px;
+  }
+  .wave svg{width:100%;height:100%;display:block}
+  .wave path{
+    fill:#0a1b29;
+    animation:waveMove 8s ease-in-out infinite alternate;
+  }
+  @keyframes waveMove{
+    0%{d:path("M0,60 C 200,40 400,80 600,55 C 800,30 1000,70 1200,45 L 1200,100 0,100 Z")}
+    100%{d:path("M0,60 C 200,75 400,35 600,70 C 800,55 1000,25 1200,60 L 1200,100 0,100 Z")}
+  }
+
+  /* Main layout */
+  .layout{
+    display:grid;grid-template-columns:360px 1fr;gap:20px;
+    padding:16px;
+    min-height:calc(100vh - 120px); /* header + a bit */
+  }
+
+  /* Left rail stays fixed */
+  .rail{
+    position:sticky;top:0;align-self:start;height:calc(100vh - 140px);
+    padding:0 12px;overflow:hidden;z-index:2;pointer-events:auto;
+  }
+  .zones{position:absolute;left:24px;right:0;top:0;bottom:0;pointer-events:none}
+  .zone{position:absolute;left:0;color:#9fc2de;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+  .zone.sun{top:0}
+  .zone.twilight{top:35%}
+  .zone.midnight{bottom:0}
+
+  /* Vertical track */
+  .track{
+    position:absolute;left:160px;top:0;bottom:0;width:8px;border-radius:999px;
+    background:linear-gradient(180deg,#7bd5ff,#2aa4f4,#103a5f,#06121c);
+    box-shadow:0 0 0 1px #1b3b57 inset;
+    z-index:3;pointer-events:auto;touch-action:none;
+  }
+  .handle{
+    position:absolute;left:50%;transform:translate(-50%,-50%);
+    width:40px;height:24px;border-radius:999px;background:var(--accent);
+    box-shadow:0 0 16px rgba(0,229,255,.85),0 0 2px #fff inset;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;z-index:4;touch-action:none;
+  }
+  .readout{position:absolute;left:52px;top:-2px;color:#cfe7ff;font-weight:700;text-shadow:0 1px 0 #001}
+
+  .ticks{position:absolute;left:210px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;color:#a7c1d9;font-size:14px;pointer-events:none}
+
+  /* Lift rail and famous refs on same scale */
+  .lift-rail,.ref-rail{position:absolute;top:0;bottom:0;pointer-events:none}
+  .lift-rail{left:240px;width:40px}
+  .lift-rail::before{content:"";position:absolute;left:18px;top:0;bottom:0;width:4px;background:#23425f;border-radius:2px}
+  .lift-marker{position:absolute;left:0;transform:translateY(-50%);width:40px;color:#cfe7ff;font-size:12px;text-align:center}
+  .lift-marker .tick{position:absolute;left:12px;top:50%;width:16px;height:2px;background:#79d2ff;transform:translateY(-50%)}
+  .lift-marker .label{display:block;margin-top:-10px;font-weight:700}
+
+  .ref-rail{left:300px;right:0}
+  .ref-marker{position:absolute;left:0;right:16px;transform:translateY(-50%);display:flex;align-items:center;gap:8px;color:#d9e8f6;font-size:12px}
+  .ref-marker .rule{height:1px;background:#3a6185;flex:1}
+  .ref-marker .tag{background:#0e2539;border:1px solid #1e4464;border-radius:999px;padding:4px 8px;white-space:nowrap}
+
+  /* Right column scrolls, rail stays put */
+  .results{
+    position:relative;z-index:1;
+    height:calc(100vh - 180px);
+    overflow-y:auto;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    backdrop-filter:blur(4px);
+  }
+
+  .toolrow{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:4px 8px 10px 8px}
+  label{display:flex;flex-direction:column;font-size:14px;color:#cfe7ff}
+  select,input[type=search]{padding:10px;border-radius:10px;border:1px solid #294a68;background:#0c2031;color:#fff;min-width:160px}
+  button{padding:10px 14px;border-radius:10px;border:0;background:var(--cta);color:#001;font-weight:600;cursor:pointer}
+  button:hover{filter:brightness(1.05)}
+
+  /* Cards */
+  .cards{list-style:none;margin:0;padding:8px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  a.card{display:block;text-decoration:none;color:inherit;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:transform .08s ease}
+  a.card:active{transform:scale(.98)}
+  .card .image{height:140px;background:#0b1c2a;display:flex;align-items:center;justify-content:center}
+  .card img{max-width:100%;max-height:100%}
+  .card .body{padding:12px}
+  .card h2{margin:0 0 8px 0;font-size:18px;color:#eaf6ff}
+  .meta{display:flex;gap:8px;color:#b9cfe3;font-size:12px;margin-bottom:6px}
+  .badge{background:#1c2f44;border:1px solid #2a4e6f;border-radius:999px;padding:2px 8px}
+
+  .fact{margin:10px 8px 0;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:10px;color:#cfe7ff}
+
+  /* Detail overlay */
+  .overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);
+    display:none;align-items:center;justify-content:center;z-index:50;
+  }
+  .overlay.open{display:flex}
+  .sheet{
+    width:min(860px,92vw);max-height:80vh;overflow:auto;
+    background:#0b1c2a;border:1px solid var(--line);border-radius:14px;padding:16px;
+  }
+  .sheet header{display:flex;align-items:center;justify-content:space-between;border:0;background:none;padding:0 0 8px 0;margin:0 0 8px 0}
+  .sheet h2{margin:0}
+  .close{background:#153149;border:1px solid #234b6e;color:#cfe7ff;padding:6px 10px;border-radius:10px;cursor:pointer}
+
+  .source-badges{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .source-badges a{background:#10283f;border:1px solid #1f4161;color:#cfe7ff;text-decoration:none;padding:4px 8px;border-radius:999px;font-size:12px}
+
+  @media (max-width:960px){
+    .layout{grid-template-columns:300px 1fr}
+  }
+</style>
 </head>
-<body class="depth">
-<header class="masthead">
-  <h1>Explore by Depth</h1>
-  <nav class="mastnav">
-    <a href="index.html" class="active">Depth</a>
-    <a href="grid.html">All species</a>
-  </nav>
+<body>
+
+<header>
+  <div class="row">
+    <h1>Explore by Depth</h1>
+    <nav class="nav">
+      <a href="./index.html" class="active">Depth</a>
+    </nav>
+  </div>
+  <div class="wave" aria-hidden="true">
+    <!-- simple animated wave -->
+    <svg viewBox="0 0 1200 100" preserveAspectRatio="none">
+      <path d="M0,60 C 200,40 400,80 600,55 C 800,30 1000,70 1200,45 L 1200,100 0,100 Z"></path>
+    </svg>
+  </div>
 </header>
 
-<main class="depth-layout" aria-live="polite">
-  <aside class="depth-rail" aria-label="Depth control">
-    <div class="zone zone-sunlight">Sunlight</div>
-    <div class="zone zone-twilight">Twilight</div>
-    <div class="zone zone-midnight">Midnight</div>
+<main class="layout" aria-live="polite">
+  <aside class="rail" aria-label="Depth control">
+    <div class="zones">
+      <div class="zone sun">Sunlight</div>
+      <div class="zone twilight">Twilight</div>
+      <div class="zone midnight">Midnight</div>
+    </div>
 
     <div id="track" class="track" role="slider" aria-valuemin="0" aria-valuemax="4000" aria-valuenow="0" aria-label="Depth in metres">
       <div id="handle" class="handle" tabindex="0">
         <span id="depthReadout" class="readout">0 m</span>
       </div>
     </div>
+
+    <div id="liftRail" class="lift-rail" aria-hidden="true"></div>
+    <div id="refRail" class="ref-rail" aria-hidden="true"></div>
 
     <div class="ticks" aria-hidden="true">
       <span>0 m</span>
@@ -37,7 +190,7 @@
   </aside>
 
   <section class="results" aria-label="Species at this depth">
-    <header class="filters">
+    <div class="toolrow">
       <label>Group
         <select id="group">
           <option value="">All</option>
@@ -53,15 +206,276 @@
       <button id="randomDepth">Random depth</button>
       <button id="bigText">Big text</button>
       <button id="reset">Reset</button>
-    </header>
-
+    </div>
     <ul id="cards" class="cards"></ul>
     <div id="fact" class="fact" hidden></div>
   </section>
 </main>
 
-<footer class="sitefoot">
-  <span>Tap a card to open details</span>
-</footer>
+<!-- Detail overlay -->
+<div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+  <div class="sheet">
+    <header>
+      <h2 id="detailTitle">Loading</h2>
+      <button class="close" id="closeOverlay" aria-label="Close">Close</button>
+    </header>
+    <figure id="detailHero" style="margin:0 0 10px 0;background:#081b2a;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+      <img id="detailImg" src="" alt="" style="width:100%;height:auto;display:block">
+      <figcaption id="detailMeta" style="padding:8px 12px;color:#cfe7ff"></figcaption>
+    </figure>
+    <div class="source-badges" id="detailSources"></div>
+    <p id="detailSummary" style="margin-top:8px"></p>
+    <div id="detailExtra"></div>
+  </div>
+</div>
+
+<script>
+  // Data
+  const DEPTH_MIN = 0, DEPTH_MAX = 4000;
+  const ITEMS = [
+    { id:"black_shark", common_name:"Black shark", also:"Kitefin shark",
+      group:"Fish", depth_min_m:700, depth_max_m:1800,
+      summary:"Slow deep-water shark that hunts in small groups.",
+      look_for:["Dark body","Large eyes","Stout shape"],
+      regions:["Southern Australia","New Zealand"],
+      image:"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='#0B3D91'/><text x='50%' y='50%' font-size='46' text-anchor='middle' fill='#fff'>Black shark</text></svg>`),
+      wikipedia:"Kitefin_shark", wikidata:"Q1321783"
+    },
+    { id:"bubblegum_coral", common_name:"Bubblegum tree coral", also:"Paragorgia arborea", group:"Coral",
+      depth_min_m:200, depth_max_m:1300,
+      summary:"Slow growing gorgonian coral that forms tall thickets.",
+      look_for:["Pink branched stems","Knobbly look"],
+      image:"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='#C2185B'/><text x='50%' y='50%' font-size='46' text-anchor='middle' fill='#fff'>Bubblegum coral</text></svg>`),
+      wikipedia:"Paragorgia_arborea", wikidata:"Q2672614"
+    },
+    { id:"porcupine_crab", common_name:"Porcupine crab", group:"Crustacean",
+      depth_min_m:200, depth_max_m:1400,
+      summary:"Spiny crab that hides in deep reefs.",
+      look_for:["Very spiny shell"],
+      image:"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='#C62828'/><text x='50%' y='50%' font-size='46' text-anchor='middle' fill='#fff'>Porcupine crab</text></svg>`),
+      wikipedia:"Paralomis_histrix", wikidata:"Q1068894"
+    },
+    { id:"brittle_star", common_name:"Brittle star", group:"Echinoderm",
+      depth_min_m:50, depth_max_m:4000,
+      summary:"Fast moving relative of starfish with thin arms.",
+      image:"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='#8E44AD'/><text x='50%' y='50%' font-size='46' text-anchor='middle' fill='#fff'>Brittle star</text></svg>`),
+      wikipedia:"Brittle_star", wikidata:"Q59256"
+    }
+  ];
+
+  const LIFT = { floors:[{label:"G",depth:0},{label:"1",depth:4},{label:"2",depth:8},{label:"3",depth:12}] };
+  const REFERENCES = [
+    {label:"Blue whale ~30 m", depth:30},
+    {label:"Scuba limit ~40 m", depth:40},
+    {label:"Eiffel Tower 324 m", depth:324},
+    {label:"Burj Khalifa 828 m", depth:828},
+    {label:"Sperm whale dive ~2000 m", depth:2000},
+    {label:"Titanic wreck ~3800 m", depth:3800}
+  ];
+  const factBands = [
+    {min:0, max:50, text:"Most marine life is in the top 50 m where light is strongest."},
+    {min:200, max:400, text:"Around 200 m, daylight fades. This is the start of the twilight zone."},
+    {min:800, max:1200, text:"At 800 to 1200 m it is near freezing with very little light."},
+    {min:2000, max:4000, text:"The abyss. High pressure. Few species are adapted to survive here."}
+  ];
+
+  // Helpers
+  const clamp = (v,min,max) => Math.min(max, Math.max(min, v));
+  function yToDepth(y, trackEl){
+    const rect = trackEl.getBoundingClientRect();
+    const t = clamp((y - rect.top) / rect.height, 0, 1);
+    return Math.round(DEPTH_MIN + t * (DEPTH_MAX - DEPTH_MIN));
+  }
+  function depthToY(depth, trackEl){
+    const rect = trackEl.getBoundingClientRect();
+    return ((depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN)) * rect.height;
+  }
+
+  // Build refs
+  function renderRefs(){
+    const liftRail = document.getElementById('liftRail');
+    const refRail = document.getElementById('refRail');
+    const track = document.getElementById('track');
+    const h = track.getBoundingClientRect().height;
+    liftRail.innerHTML = "";
+    refRail.innerHTML = "";
+
+    for(const f of LIFT.floors){
+      const y = ((f.depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN))*h;
+      const el = document.createElement('div');
+      el.className = 'lift-marker';
+      el.style.top = y + 'px';
+      el.innerHTML = `<span class="tick"></span><span class="label">${f.label}</span>`;
+      liftRail.appendChild(el);
+    }
+    for(const r of REFERENCES){
+      if(r.depth < DEPTH_MIN || r.depth > DEPTH_MAX) continue;
+      const y = ((r.depth-DEPTH_MIN)/(DEPTH_MAX-DEPTH_MIN))*h;
+      const el = document.createElement('div');
+      el.className = 'ref-marker';
+      el.style.top = y + 'px';
+      el.innerHTML = `<div class="rule"></div><span class="tag">${r.label}</span>`;
+      refRail.appendChild(el);
+    }
+  }
+
+  // Cards
+  function renderCards(depth, qVal, groupVal){
+    const list = document.getElementById('cards');
+    const q = (qVal||"").toLowerCase();
+    list.innerHTML = "";
+    const filtered = ITEMS.filter(i => {
+      const hitDepth = i.depth_min_m <= depth && i.depth_max_m >= depth;
+      const hitGroup = groupVal ? i.group === groupVal : true;
+      const text = (i.common_name + " " + (i.summary||"")).toLowerCase();
+      const hitQuery = q ? text.includes(q) || (""+i.depth_min_m).includes(q) || (""+i.depth_max_m).includes(q) : true;
+      return hitDepth && hitGroup && hitQuery;
+    });
+    for(const i of filtered){
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <a class="card" href="#" data-id="${i.id}">
+          <div class="image"><img src="${i.image}" alt="${i.common_name}"></div>
+          <div class="body">
+            <h2>${i.common_name}</h2>
+            <div class="meta"><span class="badge">${i.group||"—"}</span>
+            <span class="badge">${i.depth_min_m} to ${i.depth_max_m} m</span></div>
+            <p>${i.summary||""}</p>
+          </div>
+        </a>`;
+      list.appendChild(li);
+    }
+  }
+
+  function updateFact(depth){
+    const box = document.getElementById('fact');
+    const band = factBands.find(b => depth >= b.min && depth <= b.max);
+    if(band){ box.textContent = band.text; box.hidden = false; }
+    else { box.hidden = true; }
+  }
+
+  // Overlay detail
+  function openOverlay(item){
+    const overlay = document.getElementById('overlay');
+    const title = document.getElementById('detailTitle');
+    const img = document.getElementById('detailImg');
+    const meta = document.getElementById('detailMeta');
+    const sources = document.getElementById('detailSources');
+    const summary = document.getElementById('detailSummary');
+    const extra = document.getElementById('detailExtra');
+    title.textContent = item.common_name;
+    img.src = item.image;
+    img.alt = item.common_name;
+    meta.textContent = `Depth ${item.depth_min_m} to ${item.depth_max_m} m`;
+    sources.innerHTML = "";
+    summary.textContent = item.summary||"";
+    extra.innerHTML = "";
+
+    // Wikipedia fetch with fallback
+    hydrateWikipedia(item).then(data => {
+      if(!data) return;
+      if(data.title && data.content_urls){
+        const a = document.createElement('a');
+        a.href = data.content_urls.desktop.page;
+        a.target = "_blank"; a.rel = "noopener";
+        a.textContent = "Wikipedia";
+        sources.appendChild(a);
+      }
+      if(data.extract){ summary.textContent = data.extract; }
+    }).catch(()=>{ /* keep local summary */ });
+
+    overlay.classList.add('open');
+  }
+  function closeOverlay(){ document.getElementById('overlay').classList.remove('open'); }
+
+  async function hydrateWikipedia(item){
+    try{
+      const title = item.wikipedia || item.also || item.common_name;
+      const url = 'https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title);
+      const r = await fetch(url);
+      if(!r.ok) return null;
+      return await r.json();
+    }catch{return null;}
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('track');
+    const handle = document.getElementById('handle');
+    const readout = document.getElementById('depthReadout');
+    const q = document.getElementById('q');
+    const group = document.getElementById('group');
+    const reset = document.getElementById('reset');
+    const bigText = document.getElementById('bigText');
+    const randomDepth = document.getElementById('randomDepth');
+
+    let depth = 0;
+
+    function apply(){
+      readout.textContent = depth + " m";
+      handle.style.top = depthToY(depth, track) + "px";
+      track.setAttribute('aria-valuenow', String(depth));
+      renderRefs();
+      renderCards(depth, q.value, group.value);
+      updateFact(depth);
+    }
+
+    function setFromClientY(clientY){
+      depth = yToDepth(clientY, track);
+      apply();
+    }
+
+    // Pointer Events for drag and tap
+    function startPointerDrag(ev){
+      ev.preventDefault();
+      handle.setPointerCapture(ev.pointerId);
+      const move = e => setFromClientY(e.clientY);
+      const stop = e => {
+        try{ handle.releasePointerCapture(ev.pointerId); }catch{}
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', stop);
+        window.removeEventListener('pointercancel', stop);
+      };
+      window.addEventListener('pointermove', move, {passive:false});
+      window.addEventListener('pointerup', stop);
+      window.addEventListener('pointercancel', stop);
+      setFromClientY(ev.clientY);
+    }
+    track.addEventListener('pointerdown', e => { e.preventDefault(); startPointerDrag(e); });
+    handle.addEventListener('pointerdown', startPointerDrag);
+
+    // Keyboard
+    handle.addEventListener('keydown', e => {
+      if(e.key === 'ArrowUp'){ depth = Math.max(DEPTH_MIN, depth-50); apply(); }
+      if(e.key === 'ArrowDown'){ depth = Math.min(DEPTH_MAX, depth+50); apply(); }
+      if(e.key === 'Home'){ depth = DEPTH_MIN; apply(); }
+      if(e.key === 'End'){ depth = DEPTH_MAX; apply(); }
+    });
+
+    // Filters
+    q.addEventListener('input', apply);
+    group.addEventListener('change', apply);
+    reset.addEventListener('click', () => { q.value=''; group.value=''; depth=0; apply(); });
+    bigText.addEventListener('click', () => document.documentElement.classList.toggle('kiosk-large'));
+    randomDepth.addEventListener('click', () => { depth = Math.floor(Math.random()*DEPTH_MAX); apply(); });
+
+    // Click cards to open overlay
+    document.getElementById('cards').addEventListener('click', e => {
+      const a = e.target.closest('a.card');
+      if(!a) return;
+      e.preventDefault();
+      const id = a.getAttribute('data-id');
+      const item = ITEMS.find(x => x.id === id);
+      if(item) openOverlay(item);
+    });
+    document.getElementById('closeOverlay').addEventListener('click', closeOverlay);
+    document.getElementById('overlay').addEventListener('click', e => {
+      if(e.target.id === 'overlay') closeOverlay();
+    });
+
+    window.addEventListener('resize', apply);
+    apply();
+  });
+</script>
 </body>
 </html>
